@@ -1,4 +1,4 @@
-package org.example.netty;
+package org.example.netty.betterExample;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -8,6 +8,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 
 public class Server {
+    // 前面的代码非常好，但是它没有办法对发送的消息进行合适的拆包和粘包处理
+    // 该怎么办呢？ 这里有一种自定义协议的方式来处理这个问题
     public static void main(String[] args) throws InterruptedException {
         // 1. 创建 EventLoopGroup（通常分为 bossGroup 和 workerGroup）
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
