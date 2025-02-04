@@ -5,7 +5,12 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.FixedLengthFrameDecoder;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import org.example.netty.codec.MessageCodecSharable;
 
 public class Server {
     public static void main(String[] args) throws InterruptedException {
@@ -13,6 +18,7 @@ public class Server {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         // 默认使用的是电脑的线程数乘以二
         EventLoopGroup workerGroup = new NioEventLoopGroup();
+        MessageCodecSharable MESSAGE_CODEC_SHARABLE = new MessageCodecSharable();
         try{
             ServerBootstrap b = new ServerBootstrap()
                     .group(bossGroup, workerGroup)
@@ -22,7 +28,11 @@ public class Server {
                             new ChannelInitializer<NioSocketChannel>() {
                                 @Override
                                 protected void initChannel(NioSocketChannel ch) throws Exception {
+                                    ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(1024,12,4,0,0));
+                                    ch.pipeline().addLast(MESSAGE_CODEC_SHARABLE);
                                     ch.pipeline().addLast(new StringDecoder());
+
+                                    ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
                                     ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                                         @Override
                                         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
