@@ -2,6 +2,7 @@ package org.example.netty.codec;
 
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
@@ -42,7 +43,6 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         String serializeMsg =  gson.toJson(msg);
         byte[] bytes = serializeMsg.getBytes(StandardCharsets.UTF_8);
         buffer.writeInt(bytes.length); // 内容长度
-
         buffer.writeBytes(bytes);
         out.add(buffer);
     }
