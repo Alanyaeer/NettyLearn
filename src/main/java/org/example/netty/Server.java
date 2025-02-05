@@ -10,10 +10,21 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.example.netty.codec.MessageCodecSharable;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+
 public class Server {
+    // 连接状态管理机
     public static void main(String[] args) throws InterruptedException {
+
+
+
         // 1. 创建 EventLoopGroup（通常分为 bossGroup 和 workerGroup）
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         // 默认使用的是电脑的线程数乘以二
@@ -28,10 +39,26 @@ public class Server {
                             new ChannelInitializer<NioSocketChannel>() {
                                 @Override
                                 protected void initChannel(NioSocketChannel ch) throws Exception {
+                                    ch.pipeline().addLast(new IdleStateHandler(5, 0, 0));
                                     ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(1024,12,4,0,0));
                                     ch.pipeline().addLast(MESSAGE_CODEC_SHARABLE);
+                                    ch.pipeline().addLast(new ChannelInboundHandlerAdapter(){
+                                        @Override
+                                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt){
+                                            if(evt instanceof IdleStateEvent){
+                                                IdleStateEvent event = (IdleStateEvent) evt;
+                                                if(event.state() == IdleState.READER_IDLE){
+                                                    System.out.println("触发超时断开的连接");
+                                                    ctx.close();
+                                                }
+                                                else if(event.state() == IdleState.ALL_IDLE){
+                                                    System.out.println("触发超时断开的连接");
+                                                    ctx.close();
+                                                }
+                                            }
+                                        }
+                                    });
                                     ch.pipeline().addLast(new StringDecoder());
-
                                     ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
                                     ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                                         @Override
