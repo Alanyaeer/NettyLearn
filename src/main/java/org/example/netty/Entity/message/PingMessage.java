@@ -1,4 +1,4 @@
-package org.example.netty.Entity;
+package org.example.netty.Entity.message;
 
 public class PingMessage extends Message{
     @Override
@@ -6,4 +6,8 @@ public class PingMessage extends Message{
         return PingMessageType;
     }
 
+    @Override
+    public String toString() {
+        return "PingMessage{}";
+    }
 }

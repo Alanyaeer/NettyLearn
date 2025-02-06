@@ -1,20 +1,16 @@
 package org.example.netty;
 
-import com.google.gson.Gson;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.handler.codec.string.StringEncoder;
-import org.example.netty.Entity.ChatMessage;
-import org.example.netty.Entity.Message;
-import org.example.netty.Entity.PingMessage;
+import org.example.netty.Entity.message.ChatMessage;
+import org.example.netty.Entity.message.PingMessage;
 import org.example.netty.codec.MessageCodecSharable;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

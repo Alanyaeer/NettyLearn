@@ -1,4 +1,4 @@
-package org.example.netty.Entity;
+package org.example.netty.Entity.message;
 
 public class ChatMessage extends Message{
     @Override
@@ -13,5 +13,12 @@ public class ChatMessage extends Message{
 
     public String getContent() {
         return Content;
+    }
+
+    @Override
+    public String toString() {
+        return "ChatMessage{" +
+                "Content='" + Content + '\'' +
+                '}';
     }
 }

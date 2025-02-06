@@ -2,12 +2,13 @@ package org.example.netty.codec;
 
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
-import org.example.netty.Entity.ChatMessage;
-import org.example.netty.Entity.Message;
+import org.example.netty.Entity.MySerializer;
+import org.example.netty.Entity.message.ChatMessage;
+import org.example.netty.Entity.message.Message;
+import org.example.netty.config.Config;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -39,9 +40,8 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         buffer.writeByte(msg.getMessageType()); // 1个字节 消息的类型
         buffer.writeInt(msg.getSequenceId()); // 4个字节 消息的序列号ID
         buffer.writeByte(0xff); // 1个字节
-        Gson gson = new Gson();
-        String serializeMsg =  gson.toJson(msg);
-        byte[] bytes = serializeMsg.getBytes(StandardCharsets.UTF_8);
+        MySerializer.Algorith mySerializerAlgorithm = Config.getMySerializerAlgorithm();
+        byte[] bytes = mySerializerAlgorithm.serializer(msg);
         buffer.writeInt(bytes.length); // 内容长度
         buffer.writeBytes(bytes);
         out.add(buffer);
@@ -59,14 +59,11 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
 
         final byte[] bytes = new byte[contentLength];
         msg.readBytes(bytes, 0, contentLength); // 读取进来，下面再进行 解码
+        MySerializer.Algorith mySerializerAlgorithm = Config.getMySerializerAlgorithm();
 
-        // 还是默认使用Gson
-        Gson gson = new Gson();
-//        Object content = gson.fromJson(gson.toString(), Object.class);
-//        out.add(content);
-        String json  = new String(bytes, StandardCharsets.UTF_8);
-        ChatMessage result = gson.fromJson(json, ChatMessage.class);
-        out.add(result.getContent());
+        Object result =  mySerializerAlgorithm.deserializer(Message.getMessageClass(messageType), bytes);
+        System.out.println(result);
+        out.add(result);
     }
 
 

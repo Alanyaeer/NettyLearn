@@ -39,7 +39,7 @@ public class Server {
                             new ChannelInitializer<NioSocketChannel>() {
                                 @Override
                                 protected void initChannel(NioSocketChannel ch) throws Exception {
-                                    ch.pipeline().addLast(new IdleStateHandler(5, 0, 0));
+                                    ch.pipeline().addLast(new IdleStateHandler(10, 0, 0));
                                     ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(1024,12,4,0,0));
                                     ch.pipeline().addLast(MESSAGE_CODEC_SHARABLE);
                                     ch.pipeline().addLast(new ChannelInboundHandlerAdapter(){
