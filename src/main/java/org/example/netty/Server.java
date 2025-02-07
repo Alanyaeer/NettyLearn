@@ -18,6 +18,7 @@ import org.example.netty.codec.MessageCodecSharable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
     // 连接状态管理机
@@ -39,7 +40,7 @@ public class Server {
                             new ChannelInitializer<NioSocketChannel>() {
                                 @Override
                                 protected void initChannel(NioSocketChannel ch) throws Exception {
-                                    ch.pipeline().addLast(new IdleStateHandler(10, 0, 0));
+                                    ch.pipeline().addLast(new IdleStateHandler(10, 0, 0, TimeUnit.SECONDS));
                                     ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(1024,12,4,0,0));
                                     ch.pipeline().addLast(MESSAGE_CODEC_SHARABLE);
                                     ch.pipeline().addLast(new ChannelInboundHandlerAdapter(){
@@ -60,10 +61,12 @@ public class Server {
                                     });
                                     ch.pipeline().addLast(new StringDecoder());
                                     ch.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
+                                    // 内存泄漏风险
                                     ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                                         @Override
                                         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                                             System.out.println("receive msg:\n" + msg);
+                                            ctx.fireChannelRead(msg);
                                         }
 
                                     });

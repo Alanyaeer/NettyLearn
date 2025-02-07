@@ -1,6 +1,7 @@
 package org.example.netty.codec;
 
 import com.google.gson.Gson;
+import com.sun.org.slf4j.internal.LoggerFactory;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,6 +10,7 @@ import org.example.netty.Entity.MySerializer;
 import org.example.netty.Entity.message.ChatMessage;
 import org.example.netty.Entity.message.Message;
 import org.example.netty.config.Config;
+import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -30,8 +32,11 @@ import java.util.List;
 @ChannelHandler.Sharable
 public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message> {
 
+
+
     @Override
     protected void encode(ChannelHandlerContext ctx, Message msg, List out) throws Exception {
+
         ByteBuf buffer = ctx.alloc().buffer();
         buffer.writeBytes(new byte[]{1, 2, 3, 4}); // 4个字节 魔数
         buffer.writeByte(1);  //1 个字节 消息协议的版本
@@ -44,6 +49,7 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         byte[] bytes = mySerializerAlgorithm.serializer(msg);
         buffer.writeInt(bytes.length); // 内容长度
         buffer.writeBytes(bytes);
+        System.out.println(bytes);
         out.add(buffer);
     }
 
@@ -60,9 +66,7 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         final byte[] bytes = new byte[contentLength];
         msg.readBytes(bytes, 0, contentLength); // 读取进来，下面再进行 解码
         MySerializer.Algorith mySerializerAlgorithm = Config.getMySerializerAlgorithm();
-
         Object result =  mySerializerAlgorithm.deserializer(Message.getMessageClass(messageType), bytes);
-        System.out.println(result);
         out.add(result);
     }
 
